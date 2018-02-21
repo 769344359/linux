@@ -1,0 +1,39 @@
+digraph{
+  compound=true;
+  constraint=false;
+     eventpoll [
+                shape=record , 
+                label="{<eventp> eventpoll|wait_queue_head_t wq 
+                        | wait_queue_head_t poll_wait | list_head rdllist | rb_root_cached rbr
+                        | file *file 
+                        | <ovflist> epitem *ovflist
+                        | ...
+                        }";   
+              ]; 
+    subgraph cluster_epitems {
+        node[style=filled];
+        epitem1  [shape=record ,label="{ <epitem> epitem  |  union rb_node/rcu_head |list_head rdllink 
+                                    | <next> epitem * next | epoll_filefd ffd
+                                    |<ep>  eventpoll *ep | ...}"]; 
+        epitem2  [shape=record ,label="{ <epitem> epitem  |  union rb_node/rcu_head |list_head rdllink 
+                                    | <next> epitem * next | epoll_filefd ffd
+                                    |<ep>  eventpoll *ep | ...}"];
+        epitem3  [shape=record ,label="{ <epitem> epitem  |  union rb_node/rcu_head |list_head rdllink 
+                                    | <next> epitem * next | epoll_filefd ffd
+                                    |<ep>  eventpoll *ep | ...}"];
+        label="";
+                  
+    }
+    
+    epitem1:next -> epitem2;
+    epitem2:next -> epitem3
+    epitem1:ep -> eventpoll:eventp;
+    eventpoll:ovflist -> epitem1:epitem;  
+    
+    
+
+}
+
+
+
+
