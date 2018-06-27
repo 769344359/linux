@@ -64,14 +64,8 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
 	u64 slack = 0;
 	wait_queue_entry_t wait;
 	ktime_t expires, *to = NULL;
-
-	if (timeout > 0) {
-		struct timespec64 end_time = ep_set_mstimeout(timeout);
-
-		slack = select_estimate_accuracy(&end_time);
-		to = &expires;
-		*to = timespec64_to_ktime(end_time);
-	} else if (timeout == 0) { 
+	 ...
+	if (timeout == 0) { 
 		/*
 		 * Avoid the unnecessary trip to the wait queue loop, if the
 		 * caller specified a non blocking operation.
@@ -81,63 +75,7 @@ static int ep_poll(struct eventpoll *ep, struct epoll_event __user *events,
 		goto check_events;
 	}
 
-fetch_events:
-
-	if (!ep_events_available(ep))
-		ep_busy_loop(ep, timed_out);
-
-	spin_lock_irqsave(&ep->lock, flags);
-
-	if (!ep_events_available(ep)) {
-		/*
-		 * Busy poll timed out.  Drop NAPI ID for now, we can add
-		 * it back in when we have moved a socket with a valid NAPI
-		 * ID onto the ready list.
-		 */
-		ep_reset_busy_poll_napi_id(ep);
-
-		/*
-		 * We don't have any available event to return to the caller.
-		 * We need to sleep here, and we will be wake up by
-		 * ep_poll_callback() when events will become available.
-		 */
-		init_waitqueue_entry(&wait, current);
-		__add_wait_queue_exclusive(&ep->wq, &wait);
-
-		for (;;) {
-			/*
-			 * We don't want to sleep if the ep_poll_callback() sends us
-			 * a wakeup in between. That's why we set the task state
-			 * to TASK_INTERRUPTIBLE before doing the checks.
-			 */
-			set_current_state(TASK_INTERRUPTIBLE);
-			/*
-			 * Always short-circuit for fatal signals to allow
-			 * threads to make a timely exit without the chance of
-			 * finding more events available and fetching
-			 * repeatedly.
-			 */
-			if (fatal_signal_pending(current)) {
-				res = -EINTR;
-				break;
-			}
-			if (ep_events_available(ep) || timed_out)
-				break;
-			if (signal_pending(current)) {
-				res = -EINTR;
-				break;
-			}
-
-			spin_unlock_irqrestore(&ep->lock, flags);
-			if (!schedule_hrtimeout_range(to, slack, HRTIMER_MODE_ABS))
-				timed_out = 1;
-
-			spin_lock_irqsave(&ep->lock, flags);
-		}
-
-		__remove_wait_queue(&ep->wq, &wait);
-		__set_current_state(TASK_RUNNING);
-	}
+	...
 check_events:
 	/* Is it worth to try to dig for events ? */
 	eavail = ep_events_available(ep);
@@ -158,4 +96,7 @@ check_events:
 
 ```
 
-当timeout  = 0 时候会直接查询是否有准备好的,如果有就传到用户态
+当timeout  = 0 时候会直接查询是否有准备好的,如果有就传到用户态去
+
+我们先看ep_events_available 函数
+
