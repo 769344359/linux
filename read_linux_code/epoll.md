@@ -233,7 +233,53 @@ static __poll_t ep_send_events_proc(struct eventpoll *ep, struct list_head *head
 	return 0;
 }
 ```
+--- 
 
+有一个很重要的函数
 
+下面是人肉机翻
+```c
+/**
+ * schedule_hrtimeout_range - sleep until timeout
+ * @expires:	timeout value (ktime_t)      // 超时时间         
+ * @delta:	slack in expires timeout (ktime_t)   
+ * @mode:	timer mode   // 定时器模式 应该有高精度和低精度两种
+ *
+ * Make the current task sleep until the given expiry time has
+ * elapsed. The routine will return immediately unless
+ * the current task state has been set (see set_current_state()).
+ *
+ *进程睡眠知道超时过了定时时间.例程会立马返回除非设置了进程状态(看起来是一个高精度定时器封装,不知道tcp 是用什么定时器)
+ * The @delta argument gives the kernel the freedom to schedule the
+ * actual wakeup to a time that is both power and performance friendly.
+ * The kernel give the normal best effort behavior for "@expires+@delta",
+ * but may decide to fire the timer earlier, but no earlier than @expires.
+ *参数"delta" 是一个误差值,让内核可以自己根据自己的电量或者性能设置来确定误差值也就是说唤醒时间是[expires , expirex+ delta) 这个范围内
+ * You can set the task state as follows -
+ *
+ * %TASK_UNINTERRUPTIBLE - at least @timeout time is guaranteed to
+ * pass before the routine returns unless the current task is explicitly
+ * woken up, (e.g. by wake_up_process()).
+ * 
+ * %TASK_INTERRUPTIBLE - the routine may return early if a signal is
+ * delivered to the current task or the current task is explicitly woken
+ * up.
+ *
+ * The current task state is guaranteed to be TASK_RUNNING when this
+ * routine returns.
+ *当例程 返回时候,保证当前的进程状态是 task_running
+ * Returns 0 when the timer has expired. If the task was woken before the
+ * timer expired by a signal (only possible in state TASK_INTERRUPTIBLE) or
+ * by an explicit wakeup, it returns -EINTR.
+ */
+int __sched schedule_hrtimeout_range(ktime_t *expires, u64 delta,
+				     const enum hrtimer_mode mode)
+{
+	return schedule_hrtimeout_range_clock(expires, delta, mode,
+					      CLOCK_MONOTONIC);
+}
+EXPORT_SYMBOL_GPL(schedule_hrtimeout_range);
+```
+这也是个warpper 函数 继续看  函数`schedule_hrtimeout_range_clock`
 
 
