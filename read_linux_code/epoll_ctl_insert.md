@@ -1,3 +1,4 @@
+> 委托给 `ep_insert`
 epoll  有一个很重要的逻辑是添加进ep 的红黑树和添加一堆回调和添加唤醒的列表
 ```c
 SYSCALL_DEFINE4(epoll_ctl, int, epfd, int, op, int, fd,
@@ -18,4 +19,7 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, int, op, int, fd,
 }
 ```
 添加的时候会委托给函数`ep_insert` 函数,下面我们来看看`ep_insert`函数
+
+> 初始化epitem
+在`ep_insert` 里面会初始化`epitem`
 
