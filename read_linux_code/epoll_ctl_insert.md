@@ -40,5 +40,9 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
 	epi->event = *event;                 // 设置自己关注的事件
 	epi->nwait = 0;                       // 初始化
 	epi->next = EP_UNACTIVE_PTR;           // 也是初始化
+	...
+		/* Initialize the poll table using the queue callback */
+	epq.epi = epi;                       // 初始化epq 结构
+	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);   // 也是初始化epq 结构 ,epq 结构一共有两个成员 epi 和 pt
 }
 ```
