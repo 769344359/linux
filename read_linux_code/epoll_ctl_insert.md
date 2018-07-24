@@ -23,3 +23,22 @@ SYSCALL_DEFINE4(epoll_ctl, int, epfd, int, op, int, fd,
 > 初始化epitem
 在`ep_insert` 里面会初始化`epitem`
 
+```c
+static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
+		     struct file *tfile, int fd, int full_check)
+{
+
+	if (!(epi = kmem_cache_alloc(epi_cache, GFP_KERNEL)))  // 分配epitem 不知道是分配页还是slab 分配 应该是slab
+		return -ENOMEM;
+
+	/* Item initialization follow here ... */
+	INIT_LIST_HEAD(&epi->rdllink);   // 初始化 rdllink
+	INIT_LIST_HEAD(&epi->fllink);    // 初始化 fllink
+	INIT_LIST_HEAD(&epi->pwqlist);    // 初始化pwqlist
+	epi->ep = ep;                      // epi 指向 相应的ep
+	ep_set_ffd(&epi->ffd, tfile, fd);   // 设置自己的fd 和 file *
+	epi->event = *event;                 // 设置自己关注的事件
+	epi->nwait = 0;                       // 初始化
+	epi->next = EP_UNACTIVE_PTR;           // 也是初始化
+}
+```
