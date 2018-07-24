@@ -44,5 +44,14 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
 		/* Initialize the poll table using the queue callback */
 	epq.epi = epi;                       // 初始化epq 结构
 	init_poll_funcptr(&epq.pt, ep_ptable_queue_proc);   // 也是初始化epq 结构 ,epq 结构一共有两个成员 epi 和 pt
+	...
+	/*
+	 * Attach the item to the poll hooks and get current event bits.
+	 * We can safely use the file* here because its usage count has
+	 * been increased by the caller of this function. Note that after
+	 * this operation completes, the poll callback can start hitting
+	 * the new item.
+	 */
+	revents = ep_item_poll(epi, &epq.pt, 1);  // 委托给ep_item_poll
 }
 ```
