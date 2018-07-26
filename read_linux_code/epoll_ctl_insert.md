@@ -52,6 +52,10 @@ static int ep_insert(struct eventpoll *ep, const struct epoll_event *event,
 	 * this operation completes, the poll callback can start hitting
 	 * the new item.
 	 */
-	revents = ep_item_poll(epi, &epq.pt, 1);  // 委托给ep_item_poll
+	revents = ep_item_poll(epi, &epq.pt, 1);  // 委托给ep_item_poll   基本就是 ep_ctl 这个系统调用的核心了
+	
+	list_add_tail_rcu(&epi->fllink, &tfile->f_ep_links);  // 将epi->fllink 的 的链表加到 文件 的 f_ep_links 中  现在还不知道有什么用
+	
+	ep_rbtree_insert(ep, epi);   // 将epi 加到ep 的红黑树中
 }
 ```
