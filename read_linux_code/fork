@@ -1,0 +1,7 @@
+```
+SYSCALL_DEFINE0(fork)
+{
+	return _do_fork(SIGCHLD, 0, 0, NULL, NULL, 0);
+
+}
+```
