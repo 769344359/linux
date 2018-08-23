@@ -1,8 +1,22 @@
+
+# 进程  
 ```
 // glibc-master\sysdeps\nptl\fork.c
 const int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
   long int ret;
 ```
+
+- 证明
+
+```
+strace ./a.out
+execve("./a.out", ["./a.out"], [/* 21 vars */]) = 0
+...
+clone(child_stack=0, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD, child_tidptr=0x7ff637155a10) = 1978
+exit_group(0)                           = ?
++++ exited with 0 +++
+```
+
 
 线程
 ```
