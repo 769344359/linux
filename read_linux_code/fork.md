@@ -80,3 +80,17 @@ ENTRY (__clone)
 
 ...
 ```
+
+# flags 区别
+- fork: 
+```
+CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD  
+```
+- thread : 
+```
+(CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SYSVSEM
+			   | CLONE_SIGHAND | CLONE_THREAD
+			   | CLONE_SETTLS | CLONE_PARENT_SETTID
+			   | CLONE_CHILD_CLEARTID
+			   | 0);
+```
