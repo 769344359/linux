@@ -102,7 +102,7 @@ static int copy_mm(unsigned long clone_flags, struct task_struct *tsk)
 	 ...
 	tsk->mm = NULL;
 	tsk->active_mm = NULL;
-	oldmm = current->mm; // 当前的mm
+	oldmm = current->mm; // 当前的mm  线程的话都会用同一个mm struct  所以都共享同一个地址空间
 	if (clone_flags & CLONE_VM) {
 		...
 		mm = oldmm;
