@@ -18,6 +18,7 @@ SYSCALL_DEFINE0(fork)
 
 __clone 函数的实现
 ```
+// glibc-master\sysdeps\unix\sysv\linux\x86_64\clone.S
 ENTRY (__clone)
 	/* Sanity check arguments.  */
 	movq	$-EINVAL,%rax
