@@ -2,10 +2,15 @@
 # 进程  
 ```
 // glibc-master\sysdeps\nptl\fork.c
-const int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
+static inline pid_t
+arch_fork (void *ctid)
+{
+  const int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
   long int ret;
+  ...
+  ret = INLINE_CLONE_SYSCALL (flags, 0, NULL, 0, ctid);  // 封装了 clone 系统调用
+}
 ```
-
 - strace 查看系统调用
 
 ```
