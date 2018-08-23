@@ -8,6 +8,7 @@ SYSCALL_DEFINE0(fork)
 
 线程
 ```
+//  glibc-master\sysdeps\unix\sysv\linux\createthread.c
   const int clone_flags = (CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SYSVSEM
 			   | CLONE_SIGHAND | CLONE_THREAD
 			   | CLONE_SETTLS | CLONE_PARENT_SETTID
