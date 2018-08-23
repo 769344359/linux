@@ -18,7 +18,7 @@ exit_group(0)                           = ?
 ```
 
 
-线程
+# 线程
 ```
 //  glibc-master\sysdeps\unix\sysv\linux\createthread.c
   const int clone_flags = (CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SYSVSEM
