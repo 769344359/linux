@@ -1,9 +1,7 @@
 ```
-SYSCALL_DEFINE0(fork)
-{
-	return _do_fork(SIGCHLD, 0, 0, NULL, NULL, 0);
-
-}
+// glibc-master\sysdeps\nptl\fork.c
+const int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
+  long int ret;
 ```
 
 线程
