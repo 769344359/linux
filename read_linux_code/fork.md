@@ -8,7 +8,7 @@ arch_fork (void *ctid)
   const int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
   long int ret;
   ...
-  ret = INLINE_CLONE_SYSCALL (flags, 0, NULL, 0, ctid);  // 封装了 clone 系统调用
+  ret = INLINE_CLONE_SYSCALL (flags, 0, NULL, 0, ctid);  // 封装了 __clone 函数
 }
 ```
 - strace 查看系统调用
@@ -31,9 +31,13 @@ exit_group(0)                           = ?
 			   | CLONE_SETTLS | CLONE_PARENT_SETTID
 			   | CLONE_CHILD_CLEARTID
 			   | 0);
+ if (__glibc_unlikely (ARCH_CLONE (&start_thread, STACK_VARIABLES_ARGS,
+				    clone_flags, pd, &pd->tid, tp, &pd->tid)
+			== -1))                   // 封装了__clone 
+    return errno;
 ```
 
-__clone 函数的实现
+# __clone 函数的实现
 ```
 // glibc-master\sysdeps\unix\sysv\linux\x86_64\sysdep.h
 #define SYS_ify(syscall_name)	__NR_##syscall_name
