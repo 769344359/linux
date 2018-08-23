@@ -94,3 +94,29 @@ CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD
 			   | CLONE_CHILD_CLEARTID
 			   | 0);
 ```
+
+- CLONE_VM
+```
+static int copy_mm(unsigned long clone_flags, struct task_struct *tsk)
+{
+	 ...
+	tsk->mm = NULL;
+	tsk->active_mm = NULL;
+	oldmm = current->mm; // 当前的mm
+	if (clone_flags & CLONE_VM) {
+		...
+		mm = oldmm;
+		goto good_mm;
+	}
+
+	retval = -ENOMEM;
+	mm = dup_mm(tsk); // 复制mm结构  
+	if (!mm)
+		goto fail_nomem;
+
+good_mm:
+	tsk->mm = mm;
+	tsk->active_mm = mm;
+	return 0;
+}
+```
