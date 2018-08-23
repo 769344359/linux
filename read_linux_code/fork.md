@@ -6,7 +6,7 @@ const int flags = CLONE_CHILD_SETTID | CLONE_CHILD_CLEARTID | SIGCHLD;
   long int ret;
 ```
 
-- 证明
+- strace 查看系统调用
 
 ```
 strace ./a.out
