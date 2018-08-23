@@ -18,6 +18,10 @@ SYSCALL_DEFINE0(fork)
 
 __clone 函数的实现
 ```
+// glibc-master\sysdeps\unix\sysv\linux\x86_64\sysdep.h
+#define SYS_ify(syscall_name)	__NR_##syscall_name
+```
+```
 // glibc-master\sysdeps\unix\sysv\linux\x86_64\clone.S
 ENTRY (__clone)
 	/* Sanity check arguments.  */
